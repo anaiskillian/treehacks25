@@ -31,7 +31,7 @@ def tesseract():
   print(text.strip())
 
 
-def figure_context(flag):
+def previous_figure_context(flag):
   video_capture()
   client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -44,6 +44,34 @@ def figure_context(flag):
 
   # Getting the Base64 string
   base64_image = encode_image(image_path)
+
+  text1 = "What is in this image? Give a two sentence summary."
+
+  text2 = "Only give the complete text for the following image."
+
+  response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": text1 if flag == 0 else text2
+          },
+          {
+            "type": "image_url",
+            "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
+          },
+        ],
+      }
+    ],
+  )
+  
+  print(response.choices[0])
+  return (client, response.choices[0].message.content)
+
+def figure_context(client, flag, base64_image):
 
   text1 = "What is in this image? Give a two sentence summary."
 
@@ -89,7 +117,7 @@ def audio_with_pygame(text):
     pygame.mixer.music.play()
 
 
-def user_output(flag, client, result_text):
+def user_output(client, flag, base64_image):
   # if len(sys.argv) != 2:
   #   print("Usage: Enter a flag")
   #   return
@@ -106,7 +134,7 @@ def user_output(flag, client, result_text):
   
   if flag == "1":
     print("Running figure_context() AND audio")
-    client, result_text = figure_context(0)
+    client, result_text = figure_context(client, 0, base64_image)
 
     speech_response = client.audio.speech.create(
         model="tts-1",  # You can also try "tts-1-hd" for higher quality
@@ -132,7 +160,7 @@ def user_output(flag, client, result_text):
   
   elif flag == "2":
     print("Running word translation")
-    _, res = figure_context(1)
+    _, res = figure_context(client, 1, base64_image)
     braille_test.send_text(res)
   
   elif flag == "3":
@@ -157,7 +185,7 @@ def get_choice():
   # Getting the Base64 string
   base64_image = encode_image(image_path)
 
-  text_find = "You are given this image to help a blind person. You must determine which flag from 1 or 2 to choose. Choose flag 1 if there is not a lot of text in the image and an audio description of the image would be best for the blind person. Choose flag 2 if there is a lot of text in the image and using braille would be best. Just output '1' or '2' based on the choice you make."
+  text_find = "You must determine which flag (from 1 or 2) to choose. Choose flag 2 if there is text in the image. Choose flag 1 if there is not a lot of text in the image and an audio description of the image would be best for the blind person. Just output '1' or '2' based on the choice you make."
 
   response = client.chat.completions.create(
     model="gpt-4o-mini",
@@ -177,10 +205,10 @@ def get_choice():
       }
     ],
   )
-  return (client, response.choices[0].message.content)
+  return (client, response.choices[0].message.content, base64_image)
 
 
 if __name__ == "__main__":
   load_dotenv()
-  client, choice = get_choice()
-  user_output(choice)
+  client, choice, base64_image = get_choice()
+  user_output(client, choice, base64_image)
