@@ -6,6 +6,6 @@ Eric Wang
 
 Pratham Pilli
 
-Jeet Dekivadia
+Jeet Hirenkumar Dekivadia
 
 Anaïs Killian
