@@ -6,6 +6,7 @@ from openai import OpenAI
 import sys
 import os
 from dotenv import load_dotenv
+import braille_test
 
 def video_capture():
 
@@ -28,7 +29,7 @@ def tesseract():
   print(text.strip())
 
 
-def figure_context():
+def figure_context(flag):
   video_capture()
   client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -37,11 +38,14 @@ def figure_context():
     with open(image_path, "rb") as image_file:
       return base64.b64encode(image_file.read()).decode("utf-8")
 
-
   image_path = "test.jpg"
 
   # Getting the Base64 string
   base64_image = encode_image(image_path)
+
+  text1 = "What is in this image?"
+
+  text2 = "Only give the complete text for the following image."
 
   response = client.chat.completions.create(
     model="gpt-4o-mini",
@@ -51,7 +55,7 @@ def figure_context():
         "content": [
           {
             "type": "text",
-            "text": "What is in this image?",
+            "text": text1 if flag == 0 else text2
           },
           {
             "type": "image_url",
@@ -61,23 +65,29 @@ def figure_context():
       }
     ],
   )
-
+  
   print(response.choices[0])
+  return response.choices[0].message.content
 
 def main():
   if len(sys.argv) != 2:
-      print("Usage: python script.py <flag>\nFlags:\n  0 - Run figure_context\n  1 - Run tesseract")
-      return
+    print("Usage: Enter a flag")
+    return
 
   # python script.py 0  # Runs figure_context()
+  # python script.py 1  # Runs word translation
   # python script.py 1  # Runs tesseract()
   flag = sys.argv[1]
 
   if flag == "0":
-    print("Running figure_context()...")
-    figure_context()
+    print("Running figure_context()")
+    figure_context(0)
   elif flag == "1":
-    print("Running tesseract()...")
+    print("Running word translation")
+    res = figure_context(1)
+    braille_test.send_text(res)
+  elif flag == "2":
+    print("Running tesseract()")
     tesseract()
   else:
     print("Invalid flag! Use 0 for figure_context or 1 for tesseract.")
