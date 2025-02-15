@@ -68,52 +68,35 @@ int getIndex(char letter) {
   return letter - 'a'; // Converts 'a' -> 0, 'b' -> 1, ..., 'z' -> 25
 }
 
+void setup() {
+  Serial.begin(9600); // Start serial communication
+  for(int i = 0; i < 6; i++){
+    pinMode(controlPins[i], OUTPUT);
+  }
+  pinMode(buttonPin, INPUT);
+}
+
 void displayText(String text) {
   for (int i = 0; i < text.length(); i++) {
-    letter = text[i];
-    index = getIndex(letter);
-    for(int k = 0; k<=5; k++){
-      digitalWrite(controlPins[k],braille[index][k]); 
+    char letter = text[i];
+    int index = getIndex(letter);
+    Serial.print("Displaying: ");
+    Serial.println(letter);
+
+    for(int k = 0; k < 6; k++){
+      digitalWrite(controlPins[k], braille[index][k]); 
     }
-    delay(1000);
+    delay(1000);  // Wait 1 second before moving to next letter
   }
+  Serial.println("Done"); // Signal to Python that display is complete
 }
 
-void setup(){ // setup code that only runs once
-  // initialize serial communication (allows printing to serial monitor)
-  Serial.begin(9600);
-  // set control pins as outputs
-  for(int i=0; i<=5; i++){
-    pinMode(controlPins[i],OUTPUT);
+void loop() {
+  if (Serial.available() > 0) { // Check if Python sent data
+    String receivedText = Serial.readStringUntil('\n'); // Read input string
+    receivedText.trim(); // Remove unwanted newline characters
+    Serial.print("Received: ");
+    Serial.println(receivedText);
+    displayText(receivedText); // Call displayText function
   }
-  // set button pin as input
-  pinMode(buttonPin,INPUT);
-  
-}
-
-void loop(){  // code that loops forever
-  
-  // loop through each letter of text input
-  for(int i=0; i<length; i++){
-    letter = text[i]; // get i'th letter of text
-    // find index of this letter in the alphabet
-    for(int j = 0; j<=26; j++){
-      if(letter == alphabet[j]){
-        index = j;
-      }
-    } 
-    // print the letter and its index to make sure this is correct
-    Serial.print(letter);
-    Serial.print(" ");
-    Serial.println(index);
-    
-    // get the corresponding row [index] from the braille array 
-    // and iterate through the columns [k] to set the corresponding pins
-    for(int k = 0; k<=5; k++){
-      digitalWrite(controlPins[k],braille[index][k]); 
-    }
-    // wait for button press before showing the next letter
-    while(digitalRead(buttonPin) == LOW){};
-    delay(1000);
-  } 
 }
