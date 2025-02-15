@@ -1,6 +1,7 @@
 ## TreeHacks Project
 
 Teammates:
+
 Eric Wang
 
 Pratham Pilli
