@@ -21,6 +21,6 @@ def send_text(text):
     arduino.close()
 
 # Example usage:
-send_text("abc")
+# send_text("abc")
 
   # Close the connection when done
