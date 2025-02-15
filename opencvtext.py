@@ -7,6 +7,8 @@ import sys
 import os
 from dotenv import load_dotenv
 import braille_test
+from gtts import gTTS
+import pygame
 
 def video_capture():
 
@@ -43,7 +45,7 @@ def figure_context(flag):
   # Getting the Base64 string
   base64_image = encode_image(image_path)
 
-  text1 = "What is in this image?"
+  text1 = "What is in this image? Give a two sentence summary."
 
   text2 = "Only give the complete text for the following image."
 
@@ -67,33 +69,118 @@ def figure_context(flag):
   )
   
   print(response.choices[0])
-  return response.choices[0].message.content
+  return (client, response.choices[0].message.content)
 
-def main():
-  if len(sys.argv) != 2:
-    print("Usage: Enter a flag")
-    return
+def audio_with_pygame(text):
+    language = 'en'
+    myobj = gTTS(text=text, lang=language, slow=False)
 
-  # python script.py 0  # Runs figure_context()
-  # python script.py 1  # Runs word translation
-  # python script.py 1  # Runs tesseract()
-  flag = sys.argv[1]
+    # Saving the converted audio in a mp3 file named
+    # welcome 
+    myobj.save("welcome.mp3")
+
+    # Initialize the mixer module
+    pygame.mixer.init()
+
+    # Load the mp3 file
+    pygame.mixer.music.load("welcome.mp3")
+
+    # Play the loaded mp3 file
+    pygame.mixer.music.play()
+
+
+def user_output(flag, client, result_text):
+  # if len(sys.argv) != 2:
+  #   print("Usage: Enter a flag")
+  #   return
+
+  # python script.py 0  # Runs figure_context() (don't need since already got it)
+  # python script.py 1  # Runs figure_context() AND audio
+  # python script.py 2  # Runs word translation
+  # python script.py 3  # Runs tesseract() (this is the bad image to text. do not use)
+  # flag = sys.argv[1]
 
   if flag == "0":
     print("Running figure_context()")
     figure_context(0)
-  elif flag == "1":
-    print("Running word translation")
-    res = figure_context(1)
-    braille_test.send_text(res)
+  
+  if flag == "1":
+    print("Running figure_context() AND audio")
+    client, result_text = figure_context(0)
+
+    speech_response = client.audio.speech.create(
+        model="tts-1",  # You can also try "tts-1-hd" for higher quality
+        voice="nova",   # "nova" is a female voice, try "alloy" or "echo" for alternatives
+        input=result_text
+    )
+
+    # Save the generated speech to a file
+    audio_file = "output.mp3"
+    with open(audio_file, "wb") as f:
+        f.write(speech_response.content)
+
+    # Play the audio using pygame
+    pygame.mixer.init()
+    pygame.mixer.music.load(audio_file)
+    pygame.mixer.music.play()
+
+    # Wait for the audio to finish playing
+    while pygame.mixer.music.get_busy():
+        continue
+
+    return result_text
+  
   elif flag == "2":
+    print("Running word translation")
+    _, res = figure_context(1)
+    braille_test.send_text(res)
+  
+  elif flag == "3":
     print("Running tesseract()")
     tesseract()
+  
   else:
-    print("Invalid flag! Use 0 for figure_context or 1 for tesseract.")
+    print("Invalid flag")
+  
+
+def get_choice():
+  video_capture()
+  client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+  # Function to encode the image
+  def encode_image(image_path):
+    with open(image_path, "rb") as image_file:
+      return base64.b64encode(image_file.read()).decode("utf-8")
+
+  image_path = "test.jpg"
+
+  # Getting the Base64 string
+  base64_image = encode_image(image_path)
+
+  text_find = "You are given this image to help a blind person. You must determine which flag from 1 or 2 to choose. Choose flag 1 if there is not a lot of text in the image and an audio description of the image would be best for the blind person. Choose flag 2 if there is a lot of text in the image and using braille would be best. Just output '1' or '2' based on the choice you make."
+
+  response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": text_find
+          },
+          {
+            "type": "image_url",
+            "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
+          },
+        ],
+      }
+    ],
+  )
+  return (client, response.choices[0].message.content)
 
 
 if __name__ == "__main__":
   load_dotenv()
-
-  main()
+  client, choice = get_choice()
+  user_output(choice)
