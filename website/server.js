@@ -8,7 +8,7 @@ const app = express();
 
 const allowedOrigins = [
   "https://www.vision-m8.com",
-  "https://vision-m8.com",
+  "https://www.vision-m8.com",
   "http://localhost:3000",
 ];
 
