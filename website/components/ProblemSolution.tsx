@@ -39,9 +39,9 @@ export default function ProblemSolution() {
               The Problem
             </h2>
             <p className="text-primary-100">
-              Blind and visually impaired individuals face immense challenges in navigating everyday environments and
+              Visually impaired individuals face challenges in navigating everyday environments and
               accessing information. Current assistive technologies often require users to manually switch between
-              multiple tools, creating frustration and inefficiency.
+              multiple tools, creating inefficiency.
             </p>
           </motion.div>
           <motion.div variants={itemVariants} className="cyberpunk-panel p-8 rounded-lg">
@@ -49,9 +49,9 @@ export default function ProblemSolution() {
               Our Solution
             </h2>
             <p className="text-primary-100">
-              AssistiveAI is an intelligent, context-aware AI agent that helps blind and visually impaired users by
+              VisionMate is an intelligent, context-aware AI agent that helps visually impaired users by
               automatically selecting and using the most appropriate tool for the situation. The agent offers seamless
-              transitions between Braille, speech-to-text, and haptic feedback, depending on the user's context.
+              transitions between braille, speech-to-text, and context-aware watch feedback, depending on the user's context.
             </p>
           </motion.div>
         </motion.div>
