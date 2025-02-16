@@ -5,11 +5,11 @@ const fs = require("fs");
 const path = require("path");
 
 const app = express();
-app.use(cors());
-app.use(express.json({ limit: "50mb" })); // Increased payload size limit
+app.use(cors({ origin: "*" })); // ✅ Allow requests from all domains
+app.use(express.json());
 
 const OPENCV_SCRIPT_PATH = "/Users/anaiskillian/treehacks/opencvtext.py";
-const IMAGE_PATH = "/tmp/captured.jpg"; // Store images in a safe temp directory
+const IMAGE_PATH = "/tmp/captured.jpg"; // ✅ Ensure image is saved correctly
 
 app.post("/process-image", async (req, res) => {
   try {
@@ -25,7 +25,7 @@ app.post("/process-image", async (req, res) => {
     exec(`python3 ${OPENCV_SCRIPT_PATH} ${IMAGE_PATH}`, (error, stdout, stderr) => {
       if (error) {
         console.error(`❌ Execution Error: ${error.message}`);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: "Processing error occurred." });
       }
       if (stderr) {
         console.error(`⚠️ Python Script Error: ${stderr}`);
@@ -34,7 +34,7 @@ app.post("/process-image", async (req, res) => {
 
       let extractedText = "No meaningful output detected.";
       try {
-        const match = stdout.match(/content='([^']+)'/); // Extract just the AI response
+        const match = stdout.match(/content='([^']+)'/);
         if (match) extractedText = match[1];
       } catch (err) {
         console.error("Error extracting meaningful response:", err);
@@ -48,7 +48,7 @@ app.post("/process-image", async (req, res) => {
   }
 });
 
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
