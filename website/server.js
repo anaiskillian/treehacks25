@@ -32,7 +32,7 @@ app.use(express.json({ limit: "50mb" }));
 const OPENCV_SCRIPT_PATH = "/Users/anaiskillian/treehacks/opencvtext.py";
 const IMAGE_PATH = "/tmp/captured.jpg";
 
-app.post("/process-image", async (req, res) => {
+app.post("/", async (req, res) => {
   try {
     if (!req.body.image) {
       throw new Error("No image data received.");
