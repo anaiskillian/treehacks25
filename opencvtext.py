@@ -9,10 +9,12 @@ from dotenv import load_dotenv
 import braille_test
 from gtts import gTTS
 import pygame
+import logging
 
 import cv2
 
 def video_capture():
+    print("Scanning for available cameras...")
     available_cameras = []
 
     for i in range(2):
@@ -52,6 +54,7 @@ def video_capture():
 
     camera.release()
     cv2.destroyAllWindows()
+    return available_cameras
 
 
 def tesseract():
@@ -204,7 +207,8 @@ def user_output(client, flag, base64_image):
   
 
 def get_choice():
-  video_capture()
+  print(video_capture())
+  console.log('Python Script Output')
   client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
   # Function to encode the image
@@ -217,7 +221,7 @@ def get_choice():
   # Getting the Base64 string
   base64_image = encode_image(image_path)
 
-  text_find = "You must determine which flag (from 1 or 2) to choose. Choose flag 2 if there is clear reading text in the image, like a book. Choose flag 1 if there is not a lot of text in the image and a description of the image would be better. Just output '1' or '2' based on the choice you make."
+  text_find = "You must determine which flag (from 1 or 2) to choose. Choose flag 2 if there is clear reading text in the image. Choose flag 1 if there is not a lot of text in the image and a description of the image would be better. Just output '1' or '2' based on the choice you make."
 
   response = client.chat.completions.create(
     model="gpt-4o-mini",
