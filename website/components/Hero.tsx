@@ -69,20 +69,23 @@ export default function Hero() {
   
     try {
       const response = await fetch(backendUrl, {
-        method: "POST", // Ensure it's a POST request
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: imageData }),  // Ensure JSON format
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ image: imageData }),
       });
   
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(`Server error: ${errorData.error || "Unknown error"}`);
       }
   
-      const data = await response.json();  // Ensure proper JSON parsing
+      const data = await response.json();
       alert(`Python script output: ${data.message}`);
     } catch (err) {
       console.error("Error sending image:", err);
-      alert("Failed to send image to the server.");
+      alert(`Failed to send image: ${err.message}`);
     }
   };  
 
