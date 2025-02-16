@@ -66,20 +66,25 @@ export default function Hero() {
 
   const sendImageToBackend = async (imageData: string) => {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "/api/process-image";
+  
     try {
-      const response = await fetch(`${backendUrl}`, {
-        method: "POST",
+      const response = await fetch(backendUrl, {
+        method: "POST", // Ensure it's a POST request
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: imageData }),
+        body: JSON.stringify({ image: imageData }),  // Ensure JSON format
       });
-
-      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      const data = await response.json();  // Ensure proper JSON parsing
       alert(`Python script output: ${data.message}`);
     } catch (err) {
       console.error("Error sending image:", err);
       alert("Failed to send image to the server.");
     }
-  };
+  };  
 
   if (!isClient) return null;
 

@@ -5,7 +5,8 @@ import path from "path";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body = await req.json();  // Ensure we're reading JSON body correctly
+
     if (!body.image) {
       return NextResponse.json({ error: "No image data received." }, { status: 400 });
     }
@@ -19,27 +20,28 @@ export async function POST(req: NextRequest) {
 
     console.log(`✅ Image saved at ${IMAGE_PATH}. Running OpenCV script...`);
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       exec(`python3 ${OPENCV_SCRIPT_PATH} ${IMAGE_PATH}`, (error, stdout, stderr) => {
         if (error) {
           console.error(`❌ Execution Error: ${error.message}`);
-          return resolve(
-            NextResponse.json({ error: `Processing error: ${error.message}` }, { status: 500 })
-          );
+          return resolve(NextResponse.json({ error: `Processing error: ${error.message}` }, { status: 500 }));
         }
         if (stderr) {
           console.error(`⚠️ Python Script Error: ${stderr}`);
-          return resolve(
-            NextResponse.json({ error: `Python error: ${stderr}` }, { status: 500 })
-          );
+          return resolve(NextResponse.json({ error: `Python error: ${stderr}` }, { status: 500 }));
         }
 
         console.log(`📌 Python Script Output:\n${stdout}`);
-        resolve(NextResponse.json({ message: stdout.trim() }));
+        resolve(NextResponse.json({ message: stdout.trim() }, { status: 200 }));
       });
     });
   } catch (error) {
     console.error("❌ Server Error:", error);
     return NextResponse.json({ error: `Failed to process image: ${error.message}` }, { status: 500 });
   }
+}
+
+// 🔥 Ensure only `POST` requests are allowed
+export function GET() {
+  return NextResponse.json({ error: "Method Not Allowed" }, { status: 405 });
 }
