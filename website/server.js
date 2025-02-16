@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const OPENCV_SCRIPT_PATH = "/Users/anaiskillian/treehacks/opencvtext.py";
+const OPENCV_SCRIPT_PATH = "../opencvtext.py";
 
 app.post("/run-opencv", (req, res) => {
   exec(`python3 ${OPENCV_SCRIPT_PATH}`, (error, stdout, stderr) => {
