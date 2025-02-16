@@ -200,9 +200,6 @@ def user_output(client, flag, base64_image):
     # print("Running tesseract()")
     tesseract()
   
-  else:
-    # print("Invalid flag")
-  
 
 def get_choice():
   load_dotenv()
