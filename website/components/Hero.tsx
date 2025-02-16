@@ -1,4 +1,5 @@
 "use client";
+import axios from "axios";
 
 import { motion, useAnimation } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
@@ -65,29 +66,19 @@ export default function Hero() {
   };
 
   const sendImageToBackend = async (imageData: string) => {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "/api/process-image";
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "YOUR_DEPLOYED_BACKEND_URL/api/process-image";
   
     try {
-      const response = await fetch(backendUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ image: imageData }),
+      const response = await axios.post(backendUrl, {
+        image: imageData, // Send the image data in the request body
       });
   
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Server error: ${errorData.error || "Unknown error"}`);
-      }
-  
-      const data = await response.json();
-      alert(`Python script output: ${data.message}`);
-    } catch (err) {
-      console.error("Error sending image:", err);
-      alert(`Failed to send image: ${err.message}`);
+      alert(`Python script output: ${response.data.message}`);
+    } catch (error) {
+      console.error("Error sending image:", error);
+      alert(`Failed to send image: ${error.response?.data?.error || error.message}`);
     }
-  };  
+  };
 
   if (!isClient) return null;
 
