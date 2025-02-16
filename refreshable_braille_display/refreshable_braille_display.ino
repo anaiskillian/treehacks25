@@ -14,7 +14,7 @@ as follows:
 */
 
 // store the code for each letter a-z in a 2D array
-int braille[26][6] = {
+int braille[27][6] = {
   {1,0,0,0,0,0},  // a (first bump is raised, others are lowered)
   {1,1,0,0,0,0},  // b (first and second bumps are raised)
   {1,0,0,1,0,0},  // c (and so on...)
@@ -41,6 +41,7 @@ int braille[26][6] = {
   {1,0,1,1,0,1},  // x
   {1,0,1,1,1,1},  // y
   {1,0,1,0,1,1},  // z
+  {1, 1, 1, 1, 1, 1} // {
 };
 
 // array of the Arduino pins used to control the solenoids
