@@ -10,17 +10,49 @@ import braille_test
 from gtts import gTTS
 import pygame
 
-def video_capture():
+import cv2
 
-  camera = cv2.VideoCapture(0)
-  while True:
-    _, image = camera.read()
-    cv2.imshow('Text detection', image)
-    if cv2.waitKey(1) & 0xFF == ord('s'):
-      cv2.imwrite('test.jpg', image)
-      break
-  camera.release()
-  cv2.destroyAllWindows()
+def video_capture():
+    available_cameras = []
+
+    for i in range(2):
+        cap = cv2.VideoCapture(i)
+        if cap.isOpened():
+            available_cameras.append(i)
+            cap.release()
+    print(available_cameras)
+    if not available_cameras:
+        print("Connect a webcam!")
+        return None  # Exit function if no cameras are available
+
+    # Prioritize external cameras (assuming index 1+ are external)
+    selected_camera = None
+    if len(available_cameras) == 2:
+        selected_camera = 1
+    else:
+        selected_camera = 0
+
+    print(f"Using Camera Index: {selected_camera}")
+    camera = cv2.VideoCapture(selected_camera)
+
+    if not camera.isOpened():
+        print("Camera failed to initialize!")
+        return None
+
+    while True:
+        ret, image = camera.read()
+        if not ret:
+            print("Error: Failed to capture image!")
+            break
+
+        cv2.imshow('Text detection', image)
+        if cv2.waitKey(1) & 0xFF == ord('s'):
+            cv2.imwrite('test.jpg', image)
+            break
+
+    camera.release()
+    cv2.destroyAllWindows()
+
 
 def tesseract():
   video_capture()
