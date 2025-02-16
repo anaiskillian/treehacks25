@@ -131,9 +131,9 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="text-6xl font-bold mb-4 cyberpunk-text glitch neon-text"
-          data-text="Orion"
+          data-text="VisionMate"
         >
-          Orion
+          VisionMate
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
