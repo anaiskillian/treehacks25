@@ -208,7 +208,7 @@ def user_output(client, flag, base64_image):
 
 def get_choice():
   print(video_capture())
-  console.log('Python Script Output')
+  logging.info('Python Script Output')
   client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
   # Function to encode the image
