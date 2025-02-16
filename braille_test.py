@@ -2,7 +2,7 @@ import serial
 import time
 
 # Replace with your Arduino's port (Windows: 'COMx', Linux/Mac: '/dev/ttyUSBx' or '/dev/ttyACMx')
-arduino = serial.Serial(port='/dev/cu.usbmodem212201', baudrate=9600, timeout=1)
+arduino = serial.Serial(port='/dev/cu.usbmodem212301', baudrate=9600, timeout=1)
 time.sleep(2)  # Wait for Arduino to initialize
 
 

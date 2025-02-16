@@ -111,9 +111,16 @@ export default function Hero() {
     })
   }
 
-  const handleTryNowClick = () => {
-    alert("Orion AI is launching... Prepare for an immersive experience!")
-  }
+  const handleTryNowClick = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/run-opencv", { method: "POST" });
+      const data = await response.json();
+      alert(`Python script executed: ${data.message}`);
+    } catch (error) {
+      console.error("Error running Python script:", error);
+      alert("Error executing script");
+    }
+  };  
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
