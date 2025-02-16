@@ -6,12 +6,32 @@ from openai import OpenAI
 import sys
 import os
 from dotenv import load_dotenv
-import braille_test
 from gtts import gTTS
 import pygame
 import logging
+import serial
+import time
 
 import cv2
+
+# Replace with your Arduino's port (Windows: 'COMx', Linux/Mac: '/dev/ttyUSBx' or '/dev/ttyACMx')
+arduino = serial.Serial(port='/dev/cu.usbmodem212201', baudrate=9600, timeout=1)
+time.sleep(2)  # Wait for Arduino to initialize
+
+def send_text(text):
+    """Sends text to Arduino and waits for response."""
+    if not arduino.is_open:
+      arduino.open()
+    for l in text:
+      arduino.write((text + "\n").encode())  # Send string with newline
+    time.sleep(0.1)  # Allow Arduino to process
+    while True:
+        response = arduino.readline().decode().strip()  # Read response
+        if response:
+            print(response)  # Print Arduino output
+        if response == "Done":  # Stop reading after completion signal
+            break
+    arduino.close()
 
 def video_capture():
     print("Scanning for available cameras...")
@@ -195,7 +215,7 @@ def user_output(client, flag, base64_image):
   elif flag == "2":
     print("Running word translation")
     _, res = figure_context(client, 1, base64_image)
-    braille_test.send_text(res)
+    send_text(res)
   
   elif flag == "3":
     print("Running tesseract()")

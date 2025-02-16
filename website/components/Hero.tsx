@@ -113,7 +113,7 @@ export default function Hero() {
 
   const handleTryNowClick = async () => {
     try {
-      const response = await fetch("http://localhost:5001/run-opencv", { method: "POST" });
+      const response = await fetch("http://172.20.10.3:5001/run-opencv", { method: "POST" });
       const data = await response.json();
       alert(`Python script executed: ${data.message}`);
     } catch (error) {
