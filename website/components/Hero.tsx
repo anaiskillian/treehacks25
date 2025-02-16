@@ -67,7 +67,7 @@ export default function Hero() {
   const sendImageToBackend = async (imageData: string) => {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5001"; // ✅ Dynamically use the correct backend
     try {
-      const response = await fetch("{backendUrl}/process-image", {
+      const response = await fetch(`${backendUrl}/process-image`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image: imageData }),
