@@ -66,11 +66,13 @@ export default function Hero() {
   };
 
   const sendImageToBackend = async (imageData: string) => {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "YOUR_DEPLOYED_BACKEND_URL/api/process-image";
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "https://your-vercel-app.vercel.app/api/process-image";
   
     try {
       const response = await axios.post(backendUrl, {
         image: imageData, // Send the image data in the request body
+      }, {
+        headers: { "Content-Type": "application/json" },  // ✅ Ensure proper headers
       });
   
       alert(`Python script output: ${response.data.message}`);
@@ -78,7 +80,7 @@ export default function Hero() {
       console.error("Error sending image:", error);
       alert(`Failed to send image: ${error.response?.data?.error || error.message}`);
     }
-  };
+  };  
 
   if (!isClient) return null;
 
