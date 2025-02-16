@@ -1,8 +1,14 @@
+import dynamic from 'next/dynamic'
 import Hero from "@/components/Hero"
 import ProblemSolution from "@/components/ProblemSolution"
 import Features from "@/components/Features"
 import HowItWorks from "@/components/HowItWorks"
 import CTA from "@/components/CTA"
+
+// Dynamically import ImageProcessor with no SSR
+const ImageProcessor = dynamic(() => import('../components/ImageProcessor'), {
+  ssr: false,
+})
 
 export default function Home() {
   return (
@@ -12,6 +18,7 @@ export default function Home() {
       <Features />
       <HowItWorks />
       <CTA />
+      <ImageProcessor />
     </main>
   )
 }
