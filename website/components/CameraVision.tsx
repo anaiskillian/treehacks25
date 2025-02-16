@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Camera, Eye, Type } from "lucide-react"
 
 interface CameraVisionProps {
