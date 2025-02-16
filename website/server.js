@@ -5,11 +5,32 @@ const fs = require("fs");
 const path = require("path");
 
 const app = express();
-app.use(cors({ origin: "*" })); // ✅ Allow requests from all domains
-app.use(express.json());
+
+const allowedOrigins = [
+  "https://www.vision-m8.com",
+  "https://vision-m8.com",
+  "http://localhost:3000",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS Policy Error: This origin is not allowed"));
+      }
+    },
+    methods: ["POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
+    credentials: true,
+  })
+);
+
+app.use(express.json({ limit: "50mb" }));
 
 const OPENCV_SCRIPT_PATH = "/Users/anaiskillian/treehacks/opencvtext.py";
-const IMAGE_PATH = "/tmp/captured.jpg"; // ✅ Ensure image is saved correctly
+const IMAGE_PATH = "/tmp/captured.jpg";
 
 app.post("/process-image", async (req, res) => {
   try {
@@ -25,26 +46,19 @@ app.post("/process-image", async (req, res) => {
     exec(`python3 ${OPENCV_SCRIPT_PATH} ${IMAGE_PATH}`, (error, stdout, stderr) => {
       if (error) {
         console.error(`❌ Execution Error: ${error.message}`);
-        return res.status(500).json({ error: "Processing error occurred." });
+        return res.status(500).json({ error: `Processing error: ${error.message}` });
       }
       if (stderr) {
         console.error(`⚠️ Python Script Error: ${stderr}`);
+        return res.status(500).json({ error: `Python error: ${stderr}` });
       }
+
       console.log(`📌 Python Script Output:\n${stdout}`);
-
-      let extractedText = "No meaningful output detected.";
-      try {
-        const match = stdout.match(/content='([^']+)'/);
-        if (match) extractedText = match[1];
-      } catch (err) {
-        console.error("Error extracting meaningful response:", err);
-      }
-
-      res.json({ message: extractedText.trim() });
+      res.json({ message: stdout.trim() });
     });
   } catch (error) {
     console.error("❌ Server Error:", error);
-    res.status(500).json({ error: "Failed to process image" });
+    res.status(500).json({ error: `Failed to process image: ${error.message}` });
   }
 });
 
