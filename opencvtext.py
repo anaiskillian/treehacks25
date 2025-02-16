@@ -67,6 +67,7 @@ def tesseract():
 
 
 def previous_figure_context(flag):
+  load_dotenv()
   video_capture()
   client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -207,7 +208,7 @@ def user_output(client, flag, base64_image):
   
 
 def get_choice():
-  print(video_capture())
+  load_dotenv()
   logging.info('Python Script Output')
   client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -243,8 +244,40 @@ def get_choice():
   )
   return (client, response.choices[0].message.content, base64_image)
 
+def process_uploaded_image(image_path):
+    """Reads the uploaded image instead of capturing from a webcam."""
+    if not os.path.exists(image_path):
+        print("Error: Image file not found.")
+        sys.exit(1)
+
+    print(f"Processing image: {image_path}")
+
+    # Read the image from the file instead of using `cv2.VideoCapture`
+    image = cv2.imread(image_path)
+
+    if image is None:
+        print("Error: Failed to read image.")
+        sys.exit(1)
+
+    # Save the image as test.jpg (your script expects this file)
+    cv2.imwrite("test.jpg", image)
+    print("Image saved as test.jpg, proceeding with existing logic...")
+
+    return "test.jpg"
+
 
 if __name__ == "__main__":
-  load_dotenv()
-  client, choice, base64_image = get_choice()
-  user_output(client, choice, base64_image)
+    load_dotenv()
+    if len(sys.argv) < 2:
+        print("Error: No image path provided.")
+        sys.exit(1)
+
+    image_path = sys.argv[1]
+
+    # Use the uploaded image instead of using OpenCV VideoCapture
+    process_uploaded_image(image_path)
+
+    # Now call the existing functions as before
+    client, choice, base64_image = get_choice()
+    user_output(client, choice, base64_image)
+  
