@@ -17,6 +17,6 @@ def send_text(text):
             break
 
 # Example usage:
-send_text("apple")  # Sends "hello" to Arduino for Braille display
+send_text("{")  # Sends "hello" to Arduino for Braille display
 
 arduino.close()  # Close the connection when done
