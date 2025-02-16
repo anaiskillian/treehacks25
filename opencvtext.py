@@ -185,7 +185,7 @@ def get_choice():
   # Getting the Base64 string
   base64_image = encode_image(image_path)
 
-  text_find = "You must determine which flag (from 1 or 2) to choose. Choose flag 2 if there is text in the image. Choose flag 1 if there is not a lot of text in the image and an audio description of the image would be best for the blind person. Just output '1' or '2' based on the choice you make."
+  text_find = "You must determine which flag (from 1 or 2) to choose. Choose flag 2 if there is clear reading text in the image, like a book. Choose flag 1 if there is not a lot of text in the image and a description of the image would be better. Just output '1' or '2' based on the choice you make."
 
   response = client.chat.completions.create(
     model="gpt-4o-mini",
