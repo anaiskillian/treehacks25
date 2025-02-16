@@ -42,7 +42,7 @@ app.post("/", async (req, res) => {
     if (!req.body.image) {
       throw new Error("No image data received.");
     }
-
+    
     const base64Image = req.body.image.replace(/^data:image\/jpeg;base64,/, "");
     fs.writeFileSync(IMAGE_PATH, base64Image, { encoding: "base64" });
 

@@ -3,8 +3,17 @@ import { exec } from "child_process";
 import fs from "fs";
 import path from "path";
 
-// Allow requests from your domain
-const allowedOrigins = ["https://www.vision-m8.com", "http://localhost:3000"];
+const allowedOrigins = [
+  "https://www.vision-m8.com",  // ✅ Add your frontend domain
+  "http://localhost:3000",      // ✅ Allow local development
+];
+
+// ✅ Helper function to set CORS headers
+const setCorsHeaders = (origin: string) => ({
+  "Access-Control-Allow-Origin": origin, 
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+});
 
 export async function OPTIONS(req: NextRequest) {
   const origin = req.headers.get("origin") || "";
@@ -15,11 +24,7 @@ export async function OPTIONS(req: NextRequest) {
 
   return NextResponse.json({}, {
     status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": origin,
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
+    headers: setCorsHeaders(origin),
   });
 }
 
@@ -31,10 +36,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "CORS Not Allowed" }, { status: 403 });
     }
 
-    const body = await req.json();  
-
+    const body = await req.json();
     if (!body.image) {
-      return NextResponse.json({ error: "No image data received." }, { status: 400 });
+      return NextResponse.json({ error: "No image data received." }, { status: 400, headers: setCorsHeaders(origin) });
     }
 
     const IMAGE_PATH = "/tmp/captured.jpg";
@@ -50,11 +54,11 @@ export async function POST(req: NextRequest) {
       exec(`python3 ${OPENCV_SCRIPT_PATH} ${IMAGE_PATH}`, (error, stdout, stderr) => {
         if (error) {
           console.error(`❌ Execution Error: ${error.message}`);
-          return resolve(NextResponse.json({ error: `Processing error: ${error.message}` }, { status: 500 }));
+          return resolve(NextResponse.json({ error: `Processing error: ${error.message}` }, { status: 500, headers: setCorsHeaders(origin) }));
         }
         if (stderr) {
           console.error(`⚠️ Python Script Error: ${stderr}`);
-          return resolve(NextResponse.json({ error: `Python error: ${stderr}` }, { status: 500 }));
+          return resolve(NextResponse.json({ error: `Python error: ${stderr}` }, { status: 500, headers: setCorsHeaders(origin) }));
         }
 
         console.log(`📌 Python Script Output:\n${stdout}`);
@@ -62,11 +66,7 @@ export async function POST(req: NextRequest) {
           { message: stdout.trim() },
           {
             status: 200,
-            headers: {
-              "Access-Control-Allow-Origin": origin,
-              "Access-Control-Allow-Methods": "POST, OPTIONS",
-              "Access-Control-Allow-Headers": "Content-Type",
-            },
+            headers: setCorsHeaders(origin),
           }
         ));
       });
