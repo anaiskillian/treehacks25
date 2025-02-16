@@ -14,7 +14,7 @@ import logging
 import cv2
 
 def video_capture():
-    # print("Scanning for available cameras...")
+    print("Scanning for available cameras...")
     available_cameras = []
 
     for i in range(2):
@@ -22,9 +22,9 @@ def video_capture():
         if cap.isOpened():
             available_cameras.append(i)
             cap.release()
-    # print(available_cameras)
+    print(available_cameras)
     if not available_cameras:
-        # print("Connect a webcam!")
+        print("Connect a webcam!")
         return None  # Exit function if no cameras are available
 
     # Prioritize external cameras (assuming index 1+ are external)
@@ -34,28 +34,26 @@ def video_capture():
     else:
         selected_camera = 0
 
-    # print(f"Using Camera Index: {selected_camera}")
+    print(f"Using Camera Index: {selected_camera}")
     camera = cv2.VideoCapture(selected_camera)
 
     if not camera.isOpened():
-        # print("Camera failed to initialize!")
         return None
 
     while True:
         ret, image = camera.read()
         if not ret:
-            # print("Error: Failed to capture image!")
+            print("Error: Failed to capture image!")
             break
 
         cv2.imshow('Text detection', image)
         if cv2.waitKey(1) & 0xFF == ord('s'):
-            image_path = "/tmp/test.jpg"
-            cv2.imwrite(image_path, image)
+            cv2.imwrite('test.jpg', image)
             break
 
     camera.release()
     cv2.destroyAllWindows()
-    return image_path
+    return available_cameras
 
 
 def tesseract():
@@ -64,11 +62,10 @@ def tesseract():
   pytesseract.tesseract_cmd = r'/opt/homebrew/bin/tesseract'
   text = pytesseract.image_to_string(Image.open(Imagepath))
     
-  # print(text.strip())
+  print(text.strip())
 
 
 def previous_figure_context(flag):
-  load_dotenv()
   video_capture()
   client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -77,7 +74,7 @@ def previous_figure_context(flag):
     with open(image_path, "rb") as image_file:
       return base64.b64encode(image_file.read()).decode("utf-8")
 
-  image_path = "/tmp/test.jpg"
+  image_path = "test.jpg"
 
   # Getting the Base64 string
   base64_image = encode_image(image_path)
@@ -105,6 +102,7 @@ def previous_figure_context(flag):
     ],
   )
   
+  print(response.choices[0])
   return (client, response.choices[0].message.content)
 
 def figure_context(client, flag, base64_image):
@@ -132,6 +130,7 @@ def figure_context(client, flag, base64_image):
     ],
   )
   
+  print(response.choices[0])
   return (client, response.choices[0].message.content)
 
 def audio_with_pygame(text):
@@ -164,9 +163,11 @@ def user_output(client, flag, base64_image):
   # flag = sys.argv[1]
 
   if flag == "0":
+    print("Running figure_context()")
     figure_context(0)
   
   if flag == "1":
+    print("Running figure_context() AND audio")
     client, result_text = figure_context(client, 0, base64_image)
 
     speech_response = client.audio.speech.create(
@@ -192,18 +193,20 @@ def user_output(client, flag, base64_image):
     return result_text
   
   elif flag == "2":
-    # print("Running word translation")
+    print("Running word translation")
     _, res = figure_context(client, 1, base64_image)
     braille_test.send_text(res)
   
   elif flag == "3":
-    # print("Running tesseract()")
+    print("Running tesseract()")
     tesseract()
+  
+  else:
+    print("Invalid flag")
   
 
 def get_choice():
-  load_dotenv()
-  logging.info('Python Script Output')
+  print(video_capture())
   client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
   # Function to encode the image
@@ -211,7 +214,7 @@ def get_choice():
     with open(image_path, "rb") as image_file:
       return base64.b64encode(image_file.read()).decode("utf-8")
 
-  image_path = "/tmp/test.jpg"
+  image_path = "test.jpg"
 
   # Getting the Base64 string
   base64_image = encode_image(image_path)
@@ -238,38 +241,8 @@ def get_choice():
   )
   return (client, response.choices[0].message.content, base64_image)
 
-def process_uploaded_image(image_path):
-    """Reads the uploaded image instead of capturing from a webcam."""
-    if not os.path.exists(image_path):
-        # print("Error: Image file not found.")
-        sys.exit(1)
-
-    # print(f"Processing image: {image_path}")
-
-    # Read the image from the file instead of using `cv2.VideoCapture`
-    image = cv2.imread(image_path)
-
-    if image is None:
-        # print("Error: Failed to read image.")
-        sys.exit(1)
-
-    # Save the image as test.jpg (your script expects this file)
-    output_path = "/tmp/test.jpg"
-    cv2.imwrite(output_path, image)
-    # print(f"✅ Image saved as {output_path}, proceeding with existing logic...")
-    return output_path
 
 if __name__ == "__main__":
-    load_dotenv()
-
-    if len(sys.argv) > 1:
-        # If an image is passed from `server.js`, process the uploaded image
-        image_path = process_uploaded_image(sys.argv[1])
-    else:
-        # If no image is passed, use the webcam and wait for "S" key
-        image_path = video_capture()
-
-    if image_path:
-        # print("🚀 Running get_choice() and user_output() after image capture.")
-        client, choice, base64_image = get_choice()
-        user_output(client, choice, base64_image)
+  load_dotenv()
+  client, choice, base64_image = get_choice()
+  user_output(client, choice, base64_image)
