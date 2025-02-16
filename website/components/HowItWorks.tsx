@@ -18,7 +18,7 @@ const steps = [
   },
   {
     title: "Feedback Delivery",
-    description: "The chosen tool provides feedback to the user (Braille, speech, or haptic).",
+    description: "The chosen tool provides feedback to the user (braille, speech, or haptic).",
   },
 ]
 

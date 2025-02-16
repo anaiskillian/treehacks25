@@ -8,7 +8,7 @@ const features = [
   {
     icon: Eye,
     title: "Vision/Text to Braille",
-    description: "Convert visual content into Braille for tactile feedback.",
+    description: "Convert visual text into braille for physical feedback.",
   },
   {
     icon: MessageSquare,
