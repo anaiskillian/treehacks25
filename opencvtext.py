@@ -49,12 +49,13 @@ def video_capture():
 
         cv2.imshow('Text detection', image)
         if cv2.waitKey(1) & 0xFF == ord('s'):
-            cv2.imwrite('test.jpg', image)
+            image_path = "/tmp/test.jpg"
+            cv2.imwrite(image_path, image)
             break
 
     camera.release()
     cv2.destroyAllWindows()
-    return available_cameras
+    return image_path
 
 
 def tesseract():
@@ -76,7 +77,7 @@ def previous_figure_context(flag):
     with open(image_path, "rb") as image_file:
       return base64.b64encode(image_file.read()).decode("utf-8")
 
-  image_path = "test.jpg"
+  image_path = "/tmp/test.jpg"
 
   # Getting the Base64 string
   base64_image = encode_image(image_path)
@@ -104,7 +105,6 @@ def previous_figure_context(flag):
     ],
   )
   
-  print(response.choices[0])
   return (client, response.choices[0].message.content)
 
 def figure_context(client, flag, base64_image):
@@ -132,7 +132,6 @@ def figure_context(client, flag, base64_image):
     ],
   )
   
-  print(response.choices[0])
   return (client, response.choices[0].message.content)
 
 def audio_with_pygame(text):
@@ -217,7 +216,7 @@ def get_choice():
     with open(image_path, "rb") as image_file:
       return base64.b64encode(image_file.read()).decode("utf-8")
 
-  image_path = "test.jpg"
+  image_path = "/tmp/test.jpg"
 
   # Getting the Base64 string
   base64_image = encode_image(image_path)
@@ -260,24 +259,22 @@ def process_uploaded_image(image_path):
         sys.exit(1)
 
     # Save the image as test.jpg (your script expects this file)
-    cv2.imwrite("test.jpg", image)
-    print("Image saved as test.jpg, proceeding with existing logic...")
-
-    return "test.jpg"
-
+    output_path = "/tmp/test.jpg"
+    cv2.imwrite(output_path, image)
+    print(f"✅ Image saved as {output_path}, proceeding with existing logic...")
+    return output_path
 
 if __name__ == "__main__":
     load_dotenv()
-    if len(sys.argv) < 2:
-        print("Error: No image path provided.")
-        sys.exit(1)
 
-    image_path = sys.argv[1]
+    if len(sys.argv) > 1:
+        # If an image is passed from `server.js`, process the uploaded image
+        image_path = process_uploaded_image(sys.argv[1])
+    else:
+        # If no image is passed, use the webcam and wait for "S" key
+        image_path = video_capture()
 
-    # Use the uploaded image instead of using OpenCV VideoCapture
-    process_uploaded_image(image_path)
-
-    # Now call the existing functions as before
-    client, choice, base64_image = get_choice()
-    user_output(client, choice, base64_image)
-  
+    if image_path:
+        print("🚀 Running get_choice() and user_output() after image capture.")
+        client, choice, base64_image = get_choice()
+        user_output(client, choice, base64_image)

@@ -1,17 +1,30 @@
-"use client"; // ✅ Ensure this runs only on the client
+"use client";
 
 import { motion, useAnimation } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 
 export default function Hero() {
-  const [isClient, setIsClient] = useState(false); // ✅ Ensure rendering only happens on client
+  const [isClient, setIsClient] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const buttonControls = useAnimation();
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
-    setIsClient(true); // ✅ Only allow rendering after hydration is complete
+    setIsClient(true);
+
+    // ✅ Listen for the "S" key to take a screenshot
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === "s") {
+        console.log("📸 'S' key pressed - Capturing Screenshot");
+        captureImage();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
   }, []);
 
   const handleTryNowClick = async () => {
@@ -26,34 +39,51 @@ export default function Hero() {
       }
 
       videoRef.current.srcObject = stream;
-      setCameraActive(true); // ✅ Show message when camera starts
-
-      await new Promise((resolve) => (videoRef.current!.onloadedmetadata = resolve));
-
-      const canvas = document.createElement("canvas");
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      const context = canvas.getContext("2d");
-
-      if (context) {
-        context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-        const imageData = canvas.toDataURL("image/jpeg");
-        sendImageToBackend(imageData);
-      }
-
-      stream.getTracks().forEach((track) => track.stop()); // ✅ Stop camera after capture
-      setTimeout(() => setCameraActive(false), 2000); // ✅ Hide message after 2 sec
+      setCameraActive(true);
     } catch (error) {
       console.error("❌ Error accessing webcam:", error);
       alert("Please grant webcam permissions to use this feature.");
     }
   };
 
-  // ✅ If not client-side, return an empty component (prevents hydration error)
+  const captureImage = () => {
+    if (!videoRef.current) {
+      console.error("❌ Error: No video stream found.");
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+    const context = canvas.getContext("2d");
+
+    if (context) {
+      context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      const imageData = canvas.toDataURL("image/jpeg");
+      sendImageToBackend(imageData);
+    }
+  };
+
+  const sendImageToBackend = async (imageData: string) => {
+    try {
+      const response = await fetch("http://localhost:5001/process-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: imageData }),
+      });
+
+      const data = await response.json();
+      alert(`Python script output: ${data.message}`);
+    } catch (err) {
+      console.error("Error sending image:", err);
+      alert("Failed to send image to the server.");
+    }
+  };
+
   if (!isClient) return null;
 
   return (
-    <section className="relative h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden">
       <div className="relative z-10 text-center">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -93,9 +123,10 @@ export default function Hero() {
           />
         </motion.button>
 
-        {cameraActive && <p className="text-green-500 mt-4">📷 Camera is active...</p>}
+        {cameraActive && <p className="text-green-500 mt-4">📷 Camera is active... Press "S" to take a screenshot.</p>}
 
-        <video ref={videoRef} autoPlay playsInline className="hidden"></video>
+        {/* ✅ Now the camera will always be visible */}
+        <video ref={videoRef} autoPlay playsInline className="border border-gray-300 rounded-md shadow-lg mt-4"></video>
       </div>
     </section>
   );
