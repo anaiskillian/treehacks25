@@ -51,7 +51,8 @@ body {
 
 .cyberpunk-text {
   @apply text-primary-300 font-cyber;
-  text-shadow: 0 0 5px theme("colors.primary.500");
+  text-shadow: 0 0 10px #00fff2, 0 0 20px #00fff2, 0 0 30px #00fff2;
+  color: #fff;
 }
 
 .cyberpunk-glow {
@@ -154,175 +155,30 @@ body {
 .glitch::before {
   left: 2px;
   text-shadow: -2px 0 #ff00c1;
-  clip: rect(44px, 450px, 56px, 0);
-  animation: glitch-anim 5s infinite linear alternate-reverse;
+  animation: glitch-1 2s linear infinite reverse;
 }
 
 .glitch::after {
   left: -2px;
-  text-shadow: -2px 0 #00fff9, 2px 2px #ff00c1;
-  animation: glitch-anim2 1s infinite linear alternate-reverse;
+  text-shadow: 2px 0 #00fff2;
+  animation: glitch-2 2s linear infinite reverse;
 }
 
-@keyframes glitch-anim {
+@keyframes glitch-1 {
   0% {
-    clip: rect(31px, 9999px, 94px, 0);
-  }
-  4.166666667% {
-    clip: rect(91px, 9999px, 43px, 0);
-  }
-  8.333333333% {
-    clip: rect(85px, 9999px, 24px, 0);
-  }
-  12.5% {
-    clip: rect(147px, 9999px, 154px, 0);
-  }
-  16.66666667% {
-    clip: rect(46px, 9999px, 7px, 0);
-  }
-  20.83333333% {
-    clip: rect(57px, 9999px, 98px, 0);
-  }
-  25% {
-    clip: rect(4px, 9999px, 72px, 0);
-  }
-  29.16666667% {
-    clip: rect(55px, 9999px, 145px, 0);
-  }
-  33.33333333% {
-    clip: rect(54px, 9999px, 93px, 0);
-  }
-  37.5% {
-    clip: rect(56px, 9999px, 36px, 0);
-  }
-  41.66666667% {
-    clip: rect(2px, 9999px, 43px, 0);
-  }
-  45.83333333% {
-    clip: rect(75px, 9999px, 76px, 0);
-  }
-  50% {
-    clip: rect(46px, 9999px, 97px, 0);
-  }
-  54.16666667% {
-    clip: rect(23px, 9999px, 106px, 0);
-  }
-  58.33333333% {
-    clip: rect(79px, 9999px, 114px, 0);
-  }
-  62.5% {
-    clip: rect(217px, 9999px, 51px, 0);
-  }
-  66.66666667% {
-    clip: rect(93px, 9999px, 51px, 0);
-  }
-  70.83333333% {
-    clip: rect(36px, 9999px, 40px, 0);
-  }
-  75% {
-    clip: rect(24px, 9999px, 33px, 0);
-  }
-  79.16666667% {
-    clip: rect(73px, 9999px, 116px, 0);
-  }
-  83.33333333% {
-    clip: rect(82px, 9999px, 117px, 0);
-  }
-  87.5% {
-    clip: rect(67px, 9999px, 98px, 0);
-  }
-  91.66666667% {
-    clip: rect(43px, 9999px, 58px, 0);
-  }
-  95.83333333% {
-    clip: rect(48px, 9999px, 95px, 0);
+    clip: rect(132px, auto, 101px, 30px);
   }
   100% {
-    clip: rect(95px, 9999px, 6px, 0);
+    clip: rect(49px, auto, 94px, 30px);
   }
 }
 
-@keyframes glitch-anim2 {
+@keyframes glitch-2 {
   0% {
-    clip: rect(65px, 9999px, 119px, 0);
-  }
-  4.166666667% {
-    clip: rect(84px, 9999px, 68px, 0);
-  }
-  8.333333333% {
-    clip: rect(144px, 9999px, 31px, 0);
-  }
-  12.5% {
-    clip: rect(15px, 9999px, 55px, 0);
-  }
-  16.66666667% {
-    clip: rect(60px, 9999px, 28px, 0);
-  }
-  20.83333333% {
-    clip: rect(32px, 9999px, 17px, 0);
-  }
-  25% {
-    clip: rect(45px, 9999px, 46px, 0);
-  }
-  29.16666667% {
-    clip: rect(147px, 9999px, 31px, 0);
-  }
-  33.33333333% {
-    clip: rect(43px, 9999px, 145px, 0);
-  }
-  37.5% {
-    clip: rect(58px, 9999px, 83px, 0);
-  }
-  41.66666667% {
-    clip: rect(148px, 9999px, 144px, 0);
-  }
-  45.83333333% {
-    clip: rect(134px, 9999px, 83px, 0);
-  }
-  50% {
-    clip: rect(102px, 9999px, 5px, 0);
-  }
-  54.16666667% {
-    clip: rect(82px, 9999px, 123px, 0);
-  }
-  58.33333333% {
-    clip: rect(141px, 9999px, 128px, 0);
-  }
-  62.5% {
-    clip: rect(34px, 9999px, 5px, 0);
-  }
-  66.66666667% {
-    clip: rect(53px, 9999px, 27px, 0);
-  }
-  70.83333333% {
-    clip: rect(89px, 9999px, 30px, 0);
-  }
-  75% {
-    clip: rect(29px, 9999px, 103px, 0);
-  }
-  79.16666667% {
-    clip: rect(24px, 9999px, 67px, 0);
-  }
-  83.33333333% {
-    clip: rect(17px, 9999px, 46px, 0);
-  }
-  87.5% {
-    clip: rect(19px, 9999px, 77px, 0);
-  }
-  91.66666667% {
-    clip: rect(65px, 9999px, 45px, 0);
-  }
-  87.5% {
-    clip: rect(19px, 9999px, 77px, 0);
-  }
-  91.66666667% {
-    clip: rect(65px, 9999px, 45px, 0);
-  }
-  95.83333333% {
-    clip: rect(132px, 9999px, 39px, 0);
+    clip: rect(28px, auto, 94px, 30px);
   }
   100% {
-    clip: rect(28px, 9999px, 99px, 0);
+    clip: rect(89px, auto, 26px, 30px);
   }
 }
 
@@ -335,21 +191,23 @@ body {
 
 /* Holographic effect */
 .holographic {
-  background: linear-gradient(45deg, #91d9ea, #66cfe8, #33bfe1, #1aafda);
-  background-size: 400% 400%;
-  animation: holographic 15s ease infinite;
+  background: linear-gradient(
+    45deg,
+    #ff00c1,
+    #00fff2,
+    #ff00c1
+  );
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  animation: hologram 5s ease infinite;
 }
 
-@keyframes holographic {
-  0% {
+@keyframes hologram {
+  0%, 100% {
     background-position: 0% 50%;
   }
   50% {
     background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
   }
 }
