@@ -1,9 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import axios from "axios"
 import { motion } from "framer-motion"
-import OpenAI from "openai"
 
 export default function CameraVision() {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -12,12 +10,6 @@ export default function CameraVision() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [mode, setMode] = useState<"describe" | "read">("describe")
-
-  // Initialize OpenAI client
-  const openai = new OpenAI({
-    apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-    dangerouslyAllowBrowser: true
-  })
 
   useEffect(() => {
     startCamera()
@@ -28,7 +20,6 @@ export default function CameraVision() {
 
   const startCamera = async () => {
     try {
-      // Try external camera first, fall back to default if not available
       const devices = await navigator.mediaDevices.enumerateDevices()
       const videoDevices = devices.filter(device => device.kind === 'videoinput')
       
@@ -82,41 +73,30 @@ export default function CameraVision() {
     }
 
     try {
-      const prompt = mode === "describe" 
-        ? "What is in this image? Give a two sentence summary."
-        : "Only give the complete text for the following image."
-
-      const response = await openai.chat.completions.create({
-        model: "gpt-4-vision-preview",
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "text", text: prompt },
-              {
-                type: "image_url",
-                image_url: { url: `data:image/jpeg;base64,${frame}` },
-              },
-            ],
-          },
-        ],
+      // Make API call to your backend endpoint instead of direct OpenAI call
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          image: frame,
+          mode: mode,
+        }),
       })
 
-      const result = response.choices[0].message.content
-      setDescription(result || "No description available")
+      if (!response.ok) {
+        throw new Error('Failed to analyze image')
+      }
 
-      // Generate speech using OpenAI TTS
-      const speech = await openai.audio.speech.create({
-        model: "tts-1",
-        voice: "nova",
-        input: result || "No description available",
-      })
+      const data = await response.json()
+      setDescription(data.description)
 
-      // Convert the binary response to a blob and play it
-      const audioBlob = new Blob([await speech.arrayBuffer()], { type: 'audio/mp3' })
-      const audioUrl = URL.createObjectURL(audioBlob)
-      const audio = new Audio(audioUrl)
-      audio.play()
+      // Play audio if provided
+      if (data.audioUrl) {
+        const audio = new Audio(data.audioUrl)
+        await audio.play()
+      }
 
     } catch (error: any) {
       console.error("Error in analysis:", error)
